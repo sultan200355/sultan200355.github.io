@@ -1,0 +1,1792 @@
+/* =========================================================
+   SULTAN AL JARAMANI - PORTFOLIO STYLES
+   ---------------------------------------------------------
+   One stylesheet for the whole site. Every page loads it.
+
+   Contents
+   1.  Fonts
+   2.  Design tokens   <- change colours, fonts and sizes here
+   3.  Base styles
+   4.  Layout helpers
+   5.  Header and navigation
+   6.  Buttons and links
+   7.  Placeholders (boxes you still need to fill in)
+   8.  Home page
+   9.  Project pages
+   10. Before/after slider
+   11. Galleries
+   12. About page
+   13. Contact page
+   14. Call-to-action band and footer
+   15. Lightbox (the big image viewer)
+   16. Animations
+   ========================================================= */
+
+
+/* 1. FONTS ------------------------------------------------
+   The font files live in /fonts, so the site never asks
+   Google (or anyone else) for them. That is faster, and
+   better for visitors' privacy (important in the EU).
+   "font-display: swap" shows text right away in a backup
+   font while the real font is still loading. */
+
+@font-face {
+  font-family: "Archivo";
+  src: url("../fonts/archivo-latin.woff2") format("woff2");
+  font-weight: 100 900;   /* one file holds every weight... */
+  font-stretch: 62% 125%; /* ...and every width, from narrow to extra wide */
+  font-style: normal;
+  font-display: swap;
+}
+
+/* The Arabic font is only downloaded on pages that actually
+   contain Arabic letters. That is what unicode-range does. */
+@font-face {
+  font-family: "Noto Kufi Arabic";
+  src: url("../fonts/noto-kufi-arabic.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-08FF, U+200C-200E, U+FB50-FDFF, U+FE70-FEFC;
+}
+
+
+/* 2. DESIGN TOKENS ----------------------------------------
+   "Tokens" are named values. Instead of typing #f0581f in
+   twenty places, we type var(--color-accent). Change it
+   here once and the whole site updates. */
+
+:root {
+  /* Colours */
+  --color-bg: #0e0c0b;          /* page background: warm near-black */
+  --color-surface: #181513;     /* panels that sit on the background */
+  --color-surface-2: #221d1a;   /* a step lighter (used in placeholder stripes) */
+  --color-line: rgb(243 237 232 / 0.12);   /* thin divider lines */
+  --color-line-strong: rgb(243 237 232 / 0.35);
+  --color-text: #f3ede8;        /* main text: warm off-white */
+  --color-muted: #a69d95;       /* secondary text */
+  --color-accent: #f0581f;      /* flame orange, from the Beit Al Mukhtar brand */
+  --color-accent-hover: #ff7038;
+  --color-on-accent: #170a04;   /* dark text that sits on orange */
+  --color-paper: #f3ede8;       /* light panel for showing logos (dark logos vanish on the dark page) */
+
+  /* Fonts. If a letter is missing in Archivo (like Arabic),
+     the browser moves on to the next font in the list. */
+  --font-sans: "Archivo", "Noto Kufi Arabic", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-arabic: "Noto Kufi Arabic", "Segoe UI", Tahoma, sans-serif;
+
+  /* Font sizes. clamp(smallest, ideal, largest) makes text
+     grow smoothly with the screen width, no jumps. */
+  --step--1: 0.875rem;
+  --step-0: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
+  --step-1: clamp(1.15rem, 1.05rem + 0.5vw, 1.5rem);
+  --step-2: clamp(1.45rem, 1.15rem + 1.4vw, 2.25rem);
+  --step-3: clamp(1.9rem, 1.2rem + 3vw, 3.75rem);
+  --step-4: clamp(2.4rem, 1.2rem + 5vw, 6rem);
+  --step-5: clamp(2.5rem, 0.5rem + 8.5vw, 8.75rem);
+
+  /* Spacing */
+  --gutter: clamp(1rem, 4vw, 3rem);              /* space at the screen edges and between columns */
+  --space-section: clamp(4.5rem, 3rem + 6vw, 9rem); /* space between big sections */
+  --max-width: 1360px;                            /* the content never gets wider than this */
+  --header-h: 4rem;
+
+  /* Motion: a soft "ease out" curve used by every animation */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+
+/* 3. BASE STYLES ------------------------------------------
+   A small reset so every browser starts from the same place,
+   then the default look of text, links and images. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  color-scheme: dark;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  /* when you jump to #work, leave room for the sticky header */
+  scroll-padding-top: calc(var(--header-h) + 1.5rem);
+}
+
+body {
+  min-height: 100dvh;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: var(--step-0);
+  font-stretch: 100%;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+a {
+  color: inherit;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 800;
+  font-stretch: 112%;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+ul[class],
+ol[class] {
+  list-style: none;
+  padding: 0;
+}
+
+/* The orange ring you see when using the Tab key. Never remove it:
+   keyboard users need it to know where they are. */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+/* ARABIC TEXT. Any element with lang="ar" uses the Arabic font.
+   Letter-spacing must stay 0, otherwise Arabic letters stop
+   joining up. The direction (right-to-left) comes from the
+   dir="rtl" attribute in the HTML. */
+[lang="ar"] {
+  font-family: var(--font-arabic);
+  font-stretch: normal;
+  letter-spacing: 0;
+  line-height: 1.5;
+}
+
+
+/* 4. LAYOUT HELPERS --------------------------------------- */
+
+/* .container keeps content centred, with space at the edges */
+.container {
+  width: min(100% - 2 * var(--gutter), var(--max-width));
+  margin-inline: auto;
+}
+
+/* Hides something visually but keeps it for screen readers */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* "Skip to content" link: invisible until a keyboard user presses Tab */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: var(--gutter);
+  z-index: 20;
+  padding: 0.75rem 1rem;
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  top: 0.75rem;
+}
+
+.section-title {
+  font-size: var(--step-3);
+  margin-bottom: clamp(1.75rem, 3vw, 3rem);
+}
+
+
+/* 5. HEADER AND NAVIGATION ---------------------------------
+   The header "sticks" to the top while you scroll. */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgb(14 12 11 / 0.86);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.site-header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  height: var(--header-h);
+}
+
+.site-logo {
+  font-weight: 800;
+  font-stretch: 115%;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.site-nav__list {
+  display: flex;
+  gap: clamp(1.1rem, 3vw, 2.5rem);
+}
+
+.site-nav__list a {
+  position: relative;
+  display: block;
+  padding-block: 0.5rem;
+  color: var(--color-muted);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.site-nav__list a:hover,
+.site-nav__list a[aria-current="page"] {
+  color: var(--color-text);
+}
+
+/* the orange line under the page you are on */
+.site-nav__list a[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.2rem;
+  height: 2px;
+  background: var(--color-accent);
+}
+
+/* On very small phones, show only "Sultan" so the menu fits on one line */
+@media (max-width: 26rem) {
+  .site-logo__last {
+    display: none;
+  }
+}
+
+
+/* 6. BUTTONS AND LINKS ------------------------------------ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  padding: 1em 1.5em;
+  border: 1px solid transparent;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.25s, border-color 0.25s, color 0.25s, transform 0.15s;
+}
+
+.btn:active {
+  transform: translateY(1px); /* a tiny "press" feeling */
+}
+
+/* Orange button with dark text (dark on orange is easy to read; white on orange is not) */
+.btn--primary {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.btn--primary:hover {
+  background: var(--color-accent-hover);
+}
+
+/* Outline button */
+.btn--ghost {
+  border-color: var(--color-line-strong);
+  color: var(--color-text);
+}
+
+.btn--ghost:hover {
+  border-color: var(--color-text);
+}
+
+/* A button for something that is not ready yet (GitHub, itch.io) */
+.btn--disabled {
+  border-color: var(--color-line);
+  color: var(--color-muted);
+  cursor: not-allowed;
+}
+
+.btn__arrow {
+  transition: transform 0.3s var(--ease-out);
+}
+
+.btn:hover .btn__arrow,
+.link-arrow:hover .btn__arrow {
+  transform: translateX(4px);
+}
+
+.btn:hover .btn__arrow--out,
+.link-arrow:hover .btn__arrow--out {
+  transform: translate(3px, -3px);
+}
+
+/* A text link with an orange underline and an arrow */
+.link-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  padding-bottom: 0.3em;
+  border-bottom: 2px solid var(--color-accent);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.link-arrow:hover {
+  color: var(--color-accent);
+}
+
+
+/* 7. PLACEHOLDERS -----------------------------------------
+   These dashed orange boxes mark every spot where YOU still
+   need to add your own text or images. When you replace one,
+   delete the whole placeholder element. */
+
+.placeholder {
+  padding: 1.25rem 1.5rem;
+  border: 1px dashed var(--color-accent);
+  background: rgb(240 88 31 / 0.07);
+  color: var(--color-text);
+}
+
+.placeholder::before {
+  content: "Placeholder";
+  display: block;
+  margin-bottom: 0.4rem;
+  color: var(--color-accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.placeholder + .placeholder {
+  margin-top: 1rem;
+}
+
+/* An empty image slot, with stripes so it clearly looks "unfinished" */
+.ph-img {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: var(--ratio, 16 / 10);
+  padding: 1rem;
+  border: 1px dashed rgb(240 88 31 / 0.55);
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--color-surface) 0 14px,
+    var(--color-surface-2) 14px 28px
+  );
+  color: var(--color-muted);
+  font-size: var(--step--1);
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: center;
+}
+
+/* Aspect-ratio helpers for placeholders (width / height) */
+.ratio-16x10 { --ratio: 16 / 10; }
+.ratio-16x9  { --ratio: 16 / 9; }
+.ratio-4x3   { --ratio: 4 / 3; }
+.ratio-4x5   { --ratio: 4 / 5; }
+.ratio-1x1   { --ratio: 1 / 1; }
+.ratio-9x16  { --ratio: 9 / 16; }
+.ratio-card  { --ratio: 85 / 55; } /* business card */
+
+
+/* 8. HOME PAGE -------------------------------------------- */
+
+/* 8a. Hero: your name, title and tagline */
+.hero {
+  padding-block: clamp(3rem, 1.5rem + 6vw, 6rem) clamp(2.5rem, 1.5rem + 4vw, 4.5rem);
+}
+
+.hero__role {
+  margin-bottom: clamp(1rem, 2vw, 1.75rem);
+  color: var(--color-muted);
+  font-size: var(--step-1);
+  font-weight: 500;
+}
+
+.hero__name {
+  font-size: var(--step-5);
+  font-stretch: 125%; /* extra wide letters, like a shop sign */
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+}
+
+.hero__name span {
+  display: block; /* "Sultan" on line 1, "Al Jaramani" on line 2 */
+}
+
+.hero__footer {
+  display: grid;
+  gap: 1.75rem;
+  align-items: end;
+  margin-top: clamp(2rem, 1rem + 4vw, 4rem);
+  padding-top: clamp(1.25rem, 2vw, 2rem);
+  border-top: 1px solid var(--color-line);
+}
+
+.hero__tagline {
+  max-width: 38ch;
+  font-size: var(--step-1);
+  line-height: 1.45;
+}
+
+@media (min-width: 48rem) {
+  .hero__footer {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+}
+
+/* On small phones the extra-wide letters would not fit, so we narrow them a bit */
+@media (max-width: 30rem) {
+  .hero__name {
+    font-stretch: 108%;
+  }
+}
+
+/* 8b. Images that zoom in a little on hover */
+.media {
+  display: block;
+  overflow: hidden;
+  background: var(--color-surface);
+}
+
+.media img {
+  width: 100%;
+  transition: transform 0.9s var(--ease-out);
+}
+
+a.media:hover img,
+.card:hover .media img {
+  transform: scale(1.035);
+}
+
+/* 8c. Featured project (Beit Al Mukhtar), shown big */
+.featured {
+  padding-bottom: var(--space-section);
+}
+
+.featured__grid {
+  display: grid;
+  gap: 1.75rem;
+}
+
+.featured__main img {
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  object-position: 50% 20%;
+}
+
+.featured__title {
+  font-size: var(--step-4);
+  font-stretch: 118%;
+  line-height: 0.95;
+}
+
+.featured__ar {
+  margin-top: 0.75rem;
+  color: var(--color-accent);
+  font-size: var(--step-2);
+  font-weight: 700;
+}
+
+/* The English meaning of the name, under the Arabic */
+.featured__meaning,
+.p-hero__meaning {
+  margin-top: 0.5rem;
+  color: var(--color-text);
+  font-size: var(--step-1);
+  line-height: 1.4;
+}
+
+.featured__meta {
+  margin-top: 1.25rem;
+  color: var(--color-muted);
+}
+
+.featured__role {
+  max-width: 40ch;
+  margin-top: 0.35rem;
+}
+
+.featured__link {
+  margin-top: 1.75rem;
+}
+
+/* On wide screens: big photo on the left, text and a second image on the right.
+   On phones everything simply stacks: text, photo, second image. */
+@media (min-width: 56rem) {
+  .featured__grid {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-template-rows: auto 1fr;
+    column-gap: var(--gutter);
+    row-gap: 2.5rem;
+  }
+
+  .featured__main {
+    grid-column: 1 / 7;
+    grid-row: 1 / 3;
+  }
+
+  .featured__body {
+    grid-column: 8 / 13;
+    grid-row: 1;
+    padding-top: 1rem;
+  }
+
+  .featured__second {
+    grid-column: 7 / 13;
+    grid-row: 2;
+    align-self: end;
+  }
+}
+
+@media (max-width: 55.99rem) {
+  .featured__body {
+    order: -1; /* text first on phones */
+  }
+}
+
+/* 8d. Grid of the other projects */
+.work-grid {
+  display: grid;
+  gap: clamp(3rem, 6vw, 4.5rem) var(--gutter);
+}
+
+.card {
+  position: relative; /* lets the title link cover the whole card */
+}
+
+.card__media img {
+  aspect-ratio: var(--ratio, 16 / 10);
+  object-fit: cover;
+  object-position: top;
+}
+
+.card--wide .card__media img {
+  aspect-ratio: auto; /* wide screenshots keep their own shape */
+}
+
+.card__body {
+  padding-top: 1.25rem;
+}
+
+.card__title {
+  font-size: var(--step-2);
+  transition: color 0.25s;
+}
+
+.card__title a {
+  text-decoration: none;
+}
+
+/* This invisible layer stretches the link over the whole card,
+   so clicking the image works too. */
+.card__title a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.card__title a:focus-visible {
+  outline: none;
+}
+
+.card:has(a:focus-visible) {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 8px;
+}
+
+.card:hover .card__title {
+  color: var(--color-accent);
+}
+
+.card__meta {
+  margin-top: 0.5rem;
+  color: var(--color-muted);
+}
+
+@media (min-width: 48rem) {
+  .work-grid {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+
+  .card--wide {
+    grid-column: 1 / -1;
+  }
+
+  .card--left {
+    grid-column: 1 / 6;
+  }
+
+  /* pushed down a little so the two cards don't line up like a template */
+  .card--right {
+    grid-column: 7 / 13;
+    margin-top: clamp(3rem, 8vw, 7rem);
+  }
+}
+
+@media (min-width: 64rem) {
+  .card--wide {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: var(--gutter);
+    align-items: end;
+  }
+
+  .card--wide .card__body {
+    padding-top: 0;
+  }
+
+  /* Flipped version: text on the left, image on the right */
+  .card--flip {
+    grid-template-columns: 1fr 2fr;
+  }
+
+  .card--flip .card__media {
+    order: 2;
+  }
+}
+
+/* 8f. Logo panel: shows a logo centred on a light background */
+.logo-panel {
+  position: relative;
+  aspect-ratio: var(--ratio, 16 / 9);
+  background: var(--color-paper);
+}
+
+.logo-panel .logo-panel__img {
+  position: absolute;
+  inset: 10%;
+  width: 80%;
+  height: 80%;
+  aspect-ratio: auto;
+  object-fit: contain; /* never crop a logo */
+}
+
+/* 8e. Game projects teaser */
+.games {
+  padding-top: var(--space-section); /* no bottom padding: the orange band below adds its own space */
+}
+
+.games__grid {
+  display: grid;
+  gap: 2.5rem;
+  padding-top: clamp(2.5rem, 5vw, 4rem);
+  border-top: 1px solid var(--color-line);
+}
+
+.games__intro p {
+  max-width: 36ch;
+  margin-top: 1.25rem;
+  color: var(--color-muted);
+  font-size: var(--step-1);
+  line-height: 1.5;
+}
+
+.games__list {
+  display: grid;
+  gap: var(--gutter);
+}
+
+.game-card {
+  padding: clamp(0.75rem, 1.5vw, 1.25rem);
+  background: var(--color-surface);
+}
+
+/* An honest "nothing to show yet" panel (not a placeholder you must fill in) */
+.soon {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--color-line);
+  background: var(--color-bg);
+  color: var(--color-muted);
+  font-size: var(--step--1);
+}
+
+.game-card__title {
+  margin-top: 1.25rem;
+  font-size: var(--step-2);
+}
+
+.game-card__meta {
+  margin-top: 0.35rem;
+  color: var(--color-muted);
+  font-size: var(--step--1);
+}
+
+.game-card .placeholder {
+  margin-top: 1rem;
+  font-size: var(--step--1);
+}
+
+/* A small label for "In development" (a real status, so it earns its place) */
+.status {
+  display: inline-block;
+  margin-top: 1.5rem;
+  padding: 0.35em 0.75em;
+  border: 1px solid var(--color-accent);
+  color: var(--color-accent);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+@media (min-width: 40rem) {
+  .games__list {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 64rem) {
+  .games__grid {
+    grid-template-columns: 4fr 8fr;
+    gap: var(--gutter);
+  }
+}
+
+
+/* 9. PROJECT PAGES ---------------------------------------- */
+
+/* 9a. Project hero */
+.p-hero {
+  padding-block: clamp(2rem, 4vw, 3.5rem) clamp(2.5rem, 5vw, 4.5rem);
+}
+
+.back-link {
+  display: inline-flex;
+  gap: 0.5em;
+  margin-bottom: clamp(1.75rem, 4vw, 3rem);
+  color: var(--color-muted);
+  font-size: 0.9375rem;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  color: var(--color-text);
+}
+
+.p-hero__title {
+  font-size: var(--step-4);
+  font-stretch: 118%;
+  line-height: 0.95;
+}
+
+.p-hero__ar {
+  margin-top: 0.75rem;
+  color: var(--color-accent);
+  font-size: var(--step-2);
+  font-weight: 700;
+}
+
+.p-hero__sub {
+  margin-top: 1rem;
+  color: var(--color-muted);
+  font-size: var(--step-1);
+}
+
+.p-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+.p-hero__media {
+  margin-top: clamp(2rem, 5vw, 3.5rem);
+}
+
+.p-hero__media img {
+  width: 100%;
+  max-height: 78svh; /* very tall images get trimmed so the hero fits the screen */
+  object-fit: cover;
+}
+
+/* Split version: text left, tall photo right (used for Beit Al Mukhtar) */
+.p-hero--split .p-hero__media img {
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  object-position: 50% 20%;
+}
+
+/* ...or a square image, like a social media post (used for ARTC) */
+.p-hero--split .p-hero__media--square img {
+  aspect-ratio: 1 / 1;
+}
+
+/* ...or a logo panel (used for Atalla Trading): the logo must never be cropped */
+.p-hero__media .logo-panel .logo-panel__img {
+  width: 80%;
+  max-height: none;
+  aspect-ratio: auto;
+  object-fit: contain;
+}
+
+@media (min-width: 56rem) {
+  .p-hero--split .p-hero__grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--gutter);
+    align-items: end;
+  }
+
+  .p-hero--split .p-hero__text {
+    grid-column: 1 / 7;
+  }
+
+  .p-hero--split .p-hero__media {
+    grid-column: 8 / 13;
+    margin-top: 0;
+  }
+}
+
+/* 9b. Quick facts: client, year, role, tools */
+.facts {
+  border-block: 1px solid var(--color-line);
+}
+
+.facts__list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem var(--gutter);
+  padding-block: 1.75rem;
+}
+
+.facts__list dt {
+  margin-bottom: 0.3rem;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+}
+
+.facts__list dd {
+  margin: 0;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+@media (min-width: 48rem) {
+  .facts__list {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* 9c. Text blocks: heading on the left, your text on the right */
+.cs {
+  padding-top: clamp(3.5rem, 7vw, 7rem);
+}
+
+.cs__grid {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.cs__title {
+  font-size: var(--step-2);
+}
+
+.cs__body {
+  max-width: 68ch;
+}
+
+.cs__body p + p {
+  margin-top: 1em;
+}
+
+@media (min-width: 56rem) {
+  .cs__grid {
+    grid-template-columns: 4fr 8fr;
+    gap: var(--gutter);
+  }
+}
+
+/* A section that is mostly images (slider, production, gallery) */
+.media-section {
+  padding-top: clamp(3.5rem, 7vw, 7rem);
+}
+
+.media-section__head {
+  max-width: 68ch;
+  margin-bottom: clamp(1.75rem, 3vw, 2.5rem);
+}
+
+.media-section__head h2 {
+  font-size: var(--step-3);
+}
+
+.media-section__head h3 {
+  font-size: var(--step-2);
+}
+
+.media-section__head .placeholder {
+  margin-top: 1.25rem;
+}
+
+.subhead {
+  margin: clamp(2.5rem, 5vw, 4rem) 0 1.25rem;
+  font-size: var(--step-1);
+  font-stretch: 105%;
+}
+
+.media-section__head + .subhead {
+  margin-top: 0;
+}
+
+/* Desktop screenshot next to a phone screenshot, both the same height.
+   The column sizes come from the image shapes: a 1440x900 desktop shot
+   and a 780x1688 phone shot are equally tall at widths 1440 : 416. */
+.device-pair {
+  display: grid;
+  gap: clamp(0.75rem, 1.5vw, 1.25rem);
+  align-items: end;
+}
+
+@media (min-width: 48rem) {
+  .device-pair {
+    grid-template-columns: 1440fr 416fr;
+  }
+}
+
+/* Colour palette swatches */
+.swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+  gap: clamp(0.75rem, 1.5vw, 1.25rem);
+}
+
+.swatch__chip {
+  display: block;
+  aspect-ratio: 3 / 2;
+  border: 1px solid var(--color-line);
+}
+
+.swatch__name {
+  display: block;
+  margin-top: 0.75rem;
+  font-weight: 600;
+}
+
+.swatch__hex {
+  color: var(--color-muted);
+  font-size: var(--step--1);
+}
+
+/* Figures and their captions */
+.figure figcaption {
+  margin-top: 0.75rem;
+  color: var(--color-muted);
+  font-size: var(--step--1);
+  line-height: 1.5;
+}
+
+.figure figcaption strong {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+/* 9d. "Designed for production": flat print files next to 3D views */
+.pair {
+  display: grid;
+  gap: clamp(1rem, 2vw, 1.5rem);
+}
+
+.pair .media img {
+  aspect-ratio: 1754 / 1241;
+  object-fit: cover;
+}
+
+.production-stack {
+  display: grid;
+  gap: clamp(2rem, 4vw, 3rem);
+}
+
+@media (min-width: 48rem) {
+  .pair {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* One image with its caption beside it (on wide screens) */
+@media (min-width: 56rem) {
+  .figure--side {
+    display: grid;
+    grid-template-columns: 8fr 4fr;
+    gap: var(--gutter);
+    align-items: end;
+  }
+
+  .figure--side figcaption {
+    margin-top: 0;
+    max-width: 28ch;
+  }
+}
+
+/* 9d-2. Client list: year on the left, client and work on the right */
+.client-list li {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr);
+  gap: 1rem;
+  padding-block: 1.25rem;
+  border-top: 1px solid var(--color-line);
+}
+
+.client-list li:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.client-list__year {
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.9;
+}
+
+.client-list__name {
+  font-size: var(--step-1);
+  font-stretch: 105%;
+}
+
+.client-list p {
+  margin-top: 0.35rem;
+  color: var(--color-muted);
+}
+
+.client-list a {
+  color: var(--color-text);
+}
+
+.client-list a:hover {
+  color: var(--color-accent);
+}
+
+/* 9e. Link to the next project */
+.next {
+  margin-top: var(--space-section);
+  border-top: 1px solid var(--color-line);
+}
+
+.next__link {
+  display: block;
+  padding-block: clamp(2.5rem, 6vw, 5rem);
+  text-decoration: none;
+}
+
+.next__label {
+  display: block;
+  margin-bottom: 0.75rem;
+  color: var(--color-muted);
+}
+
+.next__title {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.4em;
+  font-size: var(--step-3);
+  font-weight: 800;
+  font-stretch: 115%;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  transition: color 0.25s;
+}
+
+.next__link:hover .next__title {
+  color: var(--color-accent);
+}
+
+
+/* 10. BEFORE/AFTER SLIDER ----------------------------------
+   Two photos are stacked on top of each other. The top one
+   (the concept) is cut off at the handle position, which is
+   stored in the --pos variable. JavaScript changes --pos
+   when you drag. */
+
+.compare {
+  /* never taller than the screen, so you can always see the whole thing */
+  width: min(100%, (100svh - 9rem) * 4 / 3);
+  margin-inline: auto;
+}
+
+.compare__frame {
+  --pos: 50%;
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  background: var(--color-surface);
+  cursor: ew-resize;
+  touch-action: pan-y; /* phones: up/down still scrolls the page, left/right moves the slider */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.compare__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.compare__img--before {
+  clip-path: inset(0 calc(100% - var(--pos)) 0 0);
+}
+
+.compare__line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--pos);
+  width: 2px;
+  background: var(--color-text);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.compare__knob {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.15em;
+  transform: translate(-50%, -50%);
+}
+
+/* Show the focus ring on the knob when the slider is used with the keyboard */
+.compare__frame:has(.compare__range:focus-visible) .compare__knob {
+  outline: 2px solid var(--color-text);
+  outline-offset: 3px;
+}
+
+.compare__label {
+  position: absolute;
+  bottom: 1rem;
+  padding: 0.35em 0.75em;
+  background: rgb(14 12 11 / 0.8);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.compare__label--before { left: 1rem; }
+.compare__label--after  { right: 1rem; }
+
+/* The real (invisible) slider control, for keyboard and screen readers */
+.compare__range {
+  position: absolute;
+  inset: auto 0 0 0;
+  width: 100%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+
+/* 11. GALLERIES ------------------------------------------- */
+
+/* 11a. Standard grid gallery */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.75rem, 1.5vw, 1.25rem);
+}
+
+.gallery__item {
+  display: block;
+  overflow: hidden;
+  background: var(--color-surface);
+  cursor: zoom-in;
+}
+
+.gallery__item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.9s var(--ease-out);
+}
+
+.gallery__item:hover img {
+  transform: scale(1.035);
+}
+
+/* Two-column gallery for website screenshots: the first one spans the full row */
+.gallery--two {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.gallery__item--full {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 48rem) {
+  .gallery.gallery--two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Landscape packaging images all share the same shape */
+.gallery--landscape .gallery__item img {
+  aspect-ratio: 1754 / 1241;
+}
+
+@media (min-width: 48rem) {
+  .gallery {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  /* one bigger image at the start of a group, for rhythm */
+  .gallery__item--large {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+
+  .gallery--landscape .gallery__item--large img {
+    aspect-ratio: auto;
+  }
+}
+
+/* 11b. Brand gallery (Beit Al Mukhtar): menus big, then three smaller pieces */
+.gallery--brand {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.gallery--brand .gallery__item img {
+  aspect-ratio: 5 / 7;
+}
+
+.gallery--brand .gallery__item:last-child {
+  grid-column: 1 / -1; /* on phones the 5th image takes the full row */
+}
+
+.gallery--brand .gallery__item:last-child img {
+  aspect-ratio: 4 / 3;
+}
+
+@media (min-width: 48rem) {
+  .gallery--brand {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .gallery--brand .gallery__item {
+    grid-column: span 2;
+  }
+
+  .gallery--brand .gallery__item:nth-child(-n + 2) {
+    grid-column: span 3;
+  }
+
+  .gallery--brand .gallery__item:last-child {
+    grid-column: span 2;
+  }
+
+  .gallery--brand .gallery__item:last-child img {
+    aspect-ratio: 5 / 7;
+  }
+}
+
+/* 11c. Masonry gallery: images keep their own height and
+   flow into columns, like Pinterest. Pure CSS, no JavaScript. */
+.masonry {
+  columns: 3 260px;
+  column-gap: clamp(0.75rem, 1.5vw, 1.25rem);
+}
+
+.masonry > * {
+  margin-bottom: clamp(0.75rem, 1.5vw, 1.25rem);
+  break-inside: avoid;
+}
+
+.masonry .gallery__item img {
+  height: auto;
+}
+
+/* A video inside a gallery */
+.video-item video {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: var(--color-surface);
+}
+
+.video-item figcaption {
+  margin-top: 0.75rem;
+  color: var(--color-muted);
+  font-size: var(--step--1);
+}
+
+.video-item .placeholder {
+  margin-top: 0.75rem;
+  font-size: var(--step--1);
+}
+
+
+/* 12. ABOUT PAGE ------------------------------------------ */
+
+.about-hero {
+  padding-block: clamp(2rem, 4vw, 3.5rem) 0;
+}
+
+.about-hero__grid {
+  display: grid;
+  gap: clamp(2rem, 4vw, 3rem);
+}
+
+.about-hero__title {
+  font-size: var(--step-4);
+  font-stretch: 118%;
+  line-height: 0.95;
+  margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+@media (min-width: 56rem) {
+  .about-hero__grid {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--gutter);
+    align-items: start;
+  }
+
+  .about-hero__photo {
+    grid-column: 1 / 6;
+  }
+
+  .about-hero__text {
+    grid-column: 7 / 13;
+    padding-top: 1rem;
+  }
+}
+
+.about-section {
+  padding-top: var(--space-section);
+}
+
+/* Skills and tools in three groups */
+.skills {
+  display: grid;
+  gap: clamp(2rem, 4vw, 3rem) var(--gutter);
+}
+
+.skills__group h3 {
+  padding-bottom: 0.9rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--color-line);
+  font-size: var(--step-1);
+  font-stretch: 105%;
+}
+
+.skills__group li {
+  padding-block: 0.3rem;
+}
+
+.skills__note {
+  color: var(--color-muted);
+}
+
+@media (min-width: 48rem) {
+  .skills {
+    /* as many columns as fit, each at least 12rem wide (5 on a laptop) */
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  }
+}
+
+.about-hero__body p + p {
+  margin-top: 1em;
+}
+
+.goal__text {
+  max-width: 68ch;
+  margin-top: clamp(1.5rem, 3vw, 2.5rem);
+  color: var(--color-muted);
+  font-size: var(--step-1);
+  line-height: 1.55;
+}
+
+/* "My goal" statement */
+.goal {
+  padding-top: var(--space-section);
+}
+
+.goal__statement {
+  max-width: 22ch;
+  font-size: var(--step-3);
+  font-stretch: 112%;
+  line-height: 1.1;
+}
+
+.goal__statement em {
+  color: var(--color-accent);
+  font-style: normal;
+}
+
+.goal .placeholder {
+  max-width: 68ch;
+  margin-top: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+
+/* 13. CONTACT PAGE ---------------------------------------- */
+
+.contact {
+  padding-block: clamp(2.5rem, 5vw, 4.5rem) var(--space-section);
+}
+
+.contact__title {
+  font-size: var(--step-4);
+  font-stretch: 118%;
+  line-height: 0.95;
+}
+
+.contact__intro {
+  max-width: 40ch;
+  margin-top: 1.25rem;
+  color: var(--color-muted);
+  font-size: var(--step-1);
+  line-height: 1.5;
+}
+
+.contact__email {
+  display: inline-block;
+  margin-top: clamp(2.5rem, 6vw, 4.5rem);
+  padding-bottom: 0.15em;
+  border-bottom: 3px solid var(--color-accent);
+  font-size: var(--step-3);
+  font-weight: 800;
+  font-stretch: 110%;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  overflow-wrap: anywhere; /* long email addresses can break on phones */
+  transition: color 0.25s;
+}
+
+.contact__email:hover {
+  color: var(--color-accent);
+}
+
+.contact__label {
+  margin-top: clamp(3rem, 6vw, 4.5rem);
+  margin-bottom: 1rem;
+  color: var(--color-muted);
+  font-size: var(--step--1);
+}
+
+.contact__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+
+/* 14. CALL-TO-ACTION BAND AND FOOTER ----------------------- */
+
+/* The one big orange block near the end of a page */
+.cta {
+  margin-top: var(--space-section);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.cta__link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: clamp(3rem, 8vw, 6.5rem);
+  text-decoration: none;
+}
+
+.cta__title {
+  font-size: var(--step-4);
+  font-stretch: 120%;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+}
+
+/* Big arrow icon (from the free Phosphor icon set, "ArrowRight" bold) */
+.icon-arrow {
+  flex: none;
+  width: 0.8em;
+  height: 0.8em;
+  fill: currentColor;
+}
+
+.cta__arrow {
+  font-size: var(--step-4);
+  transition: transform 0.4s var(--ease-out);
+}
+
+.cta__link:hover .cta__arrow {
+  transform: translateX(0.12em);
+}
+
+.cta__link:focus-visible {
+  outline-color: var(--color-on-accent);
+  outline-offset: -6px;
+}
+
+.site-footer {
+  padding-block: clamp(2.5rem, 5vw, 3.5rem);
+  border-top: 1px solid var(--color-line);
+  color: var(--color-muted);
+  font-size: var(--step--1);
+}
+
+.cta + .site-footer {
+  border-top: 0;
+}
+
+.site-footer__inner {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.site-footer__name {
+  color: var(--color-text);
+  font-weight: 700;
+  font-stretch: 112%;
+}
+
+.site-footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+}
+
+.site-footer__links a {
+  text-decoration: none;
+}
+
+.site-footer__links a:hover {
+  color: var(--color-text);
+  text-decoration: underline;
+}
+
+@media (min-width: 48rem) {
+  .site-footer__inner {
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+  }
+
+  .site-footer__copy {
+    text-align: right;
+  }
+}
+
+/* Spacing for pages without the orange band */
+main > :last-child:not(.cta):not(.next):not(.contact) {
+  margin-bottom: var(--space-section);
+}
+
+
+/* 15. LIGHTBOX ---------------------------------------------
+   Built with the browser's own <dialog> element, which
+   already handles the Esc key and keeps keyboard focus
+   inside the viewer. The HTML for it is created by main.js. */
+
+.lightbox {
+  width: 100vw;
+  max-width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+}
+
+.lightbox::backdrop {
+  background: rgb(8 7 6 / 0.95);
+}
+
+.lightbox__figure {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 1rem;
+  width: 100%;
+  height: 100%;
+  padding: 4.5rem 1rem 5.5rem;
+  pointer-events: none; /* clicks pass through to the dialog, which closes it */
+}
+
+.lightbox__img {
+  max-width: min(100%, 1600px);
+  max-height: calc(100dvh - 12rem);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  pointer-events: auto;
+}
+
+.lightbox__caption {
+  max-width: 60ch;
+  color: var(--color-muted);
+  font-size: var(--step--1);
+  text-align: center;
+}
+
+.lightbox__btn {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border: 1px solid var(--color-line-strong);
+  background: rgb(14 12 11 / 0.7);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.lightbox__btn:hover {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.lightbox__close {
+  top: 1rem;
+  right: 1rem;
+}
+
+.lightbox__prev,
+.lightbox__next {
+  bottom: 1.25rem;
+}
+
+.lightbox__prev { left: calc(50% - 3.5rem); }
+.lightbox__next { right: calc(50% - 3.5rem); }
+
+@media (min-width: 48rem) {
+  .lightbox__prev,
+  .lightbox__next {
+    top: 50%;
+    bottom: auto;
+    transform: translateY(-50%);
+  }
+
+  .lightbox__prev { left: 1.5rem; }
+  .lightbox__next { right: 1.5rem; }
+}
+
+/* stop the page behind from scrolling while the viewer is open */
+html:has(.lightbox[open]) {
+  overflow: hidden;
+}
+
+
+/* 16. ANIMATIONS -------------------------------------------
+   Only for people who have NOT asked their device to reduce
+   motion. Everything else on the site works without them. */
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Home hero rises in when the page loads */
+  .hero__role,
+  .hero__name,
+  .hero__footer {
+    animation: rise 0.8s var(--ease-out) both;
+  }
+
+  .hero__name   { animation-delay: 0.06s; }
+  .hero__footer { animation-delay: 0.16s; }
+
+  /* Fade-in on scroll. main.js adds "is-visible" when an
+     element scrolls into view. The ".js" check means: if
+     JavaScript is off, nothing is hidden. */
+  .js .reveal {
+    opacity: 0;
+    transform: translateY(1.5rem);
+    transition: opacity 0.8s var(--ease-out), transform 0.8s var(--ease-out);
+  }
+
+  .js .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  .lightbox[open] {
+    animation: fade 0.25s ease-out;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .media img,
+  .gallery__item img {
+    transition: none;
+  }
+
+  a.media:hover img,
+  .card:hover .media img,
+  .gallery__item:hover img {
+    transform: none;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(1.25rem);
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}

@@ -1,0 +1,6 @@
+# Tells search engines (like Google) they may look at every page,
+# and where to find the list of pages (sitemap.xml).
+User-agent: *
+Allow: /
+
+Sitemap: https://sultan200355.github.io/sitemap.xml

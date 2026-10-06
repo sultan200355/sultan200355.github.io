@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- The little icon in the browser tab: "SJ" on flame orange -->
+  <rect width="64" height="64" fill="#f0581f"/>
+  <text x="32" y="43" text-anchor="middle" font-family="Arial Black, Arial, Helvetica, sans-serif" font-weight="900" font-size="30" letter-spacing="-1" fill="#170a04">SJ</text>
+</svg>

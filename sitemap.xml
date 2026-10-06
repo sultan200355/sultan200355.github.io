@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- A list of every page on the site, so Google can find them all.
+     If you add a new page, add a new <url> block for it. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://sultan200355.github.io/</loc></url>
+  <url><loc>https://sultan200355.github.io/projects/beit-al-mukhtar.html</loc></url>
+  <url><loc>https://sultan200355.github.io/projects/syrian-emirati-council.html</loc></url>
+  <url><loc>https://sultan200355.github.io/projects/artc.html</loc></url>
+  <url><loc>https://sultan200355.github.io/projects/social-media.html</loc></url>
+  <url><loc>https://sultan200355.github.io/projects/atalla-trading.html</loc></url>
+  <url><loc>https://sultan200355.github.io/about.html</loc></url>
+  <url><loc>https://sultan200355.github.io/contact.html</loc></url>
+</urlset>

@@ -1,0 +1,7 @@
+# Files Git should NOT upload to GitHub
+.claude/
+Thumbs.db
+.DS_Store
+
+# Working documents (not part of the website)
+*.docx
